@@ -51,3 +51,45 @@
 *   **统一接口**：所有 API 返回库内定义的统一枚举（如 `DRV_OK`, `DRV_ERR_TIMEOUT`），让上层应用逻辑与底层硬件彻底解耦。
 
 ---
+
+# 编码哲学
+#### 1. 命名哲学
+*   **原则**：代码应像散文一样可读。宁可变量名长一点，也不要使用 `a`, `b`, `tmp` 这种无意义名称。
+*   **语言**：全英文，禁止拼音。
+*   **大小写**：
+    *   变量/函数：`snake_case` (小写_下划线)
+    *   宏/枚举值：`UPPER_CASE` (大写_下划线)
+    *   类型定义：`snake_case_t` (后缀 `_t`)
+
+#### 2. 数据类型 (Data Types)
+*   **整数**：严禁使用 `char`, `short`, `int`, `long`（除循环计数 `int i` 外）。
+    *   必须使用 `<stdint.h>`：`uint8_t`, `int16_t`, `uint32_t`, `int64_t`。
+    *   原因：`int` 在不同编译器下长度不一致（16位 vs 32位），这在驱动开发中是致命的。
+*   **浮点**：明确使用 `float` (32-bit) 或 `double` (64-bit)。
+*   **布尔**：使用 `<stdbool.h>` 的 `bool`, `true`, `false`。
+*   **空指针**：使用 `NULL`。
+
+#### 3. 变量命名 (Variable Naming)
+| 类型 | 规则 | 示例 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **局部变量** | `noun` 或 `adj_noun` | `uint8_t retry_count;` | 清晰表达含义 |
+| **指针变量** | 前缀 `p_` (可选，但在驱动库建议加上) | `device_t *p_dev;` | 提醒这是一个指针，操作需判空 |
+| **静态全局变量** | 前缀 `s_` | `static uint8_t s_init_flag;` | **S**tatic，文件作用域私有 |
+| **全局变量** | 前缀 `g_` | `uint32_t g_system_tick;` | **G**lobal，尽量避免使用 |
+| **数组** | 后缀 `_buf` 或 `_arr` | `uint8_t tx_buf[16];` | |
+| **结构体成员** | 同局部变量 | `dev->bus_handle` | |
+
+#### 4. 函数命名 (Function Naming)
+格式：`模块名_动词_名词`
+*   `mpu6050_init(...)`
+*   `mpu6050_read_accel(...)`
+*   `mpu6050_set_sample_rate(...)`
+*   **私有函数**（static）：建议加 `static_` 前缀或放在文件底部，命名可简化：`static_calc_crc(...)`。
+
+#### 5. 宏与枚举 (Macros & Enums)
+*   **宏常量**：`模块名_含义` -> `MPU6050_WHO_AM_I`
+*   **宏函数**：全大写 -> `MPU6050_CALC_OFFSET(x)`
+*   **枚举类型**：`模块名_含义_t` -> `mpu6050_range_t`
+*   **枚举值**：`模块名_含义_值` -> `MPU6050_RANGE_2G`
+
+---
