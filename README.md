@@ -4,6 +4,7 @@
 核心设计哲学
 "Driver Logic / Hardware Interface Separation"
 驱动只负责业务逻辑（寄存器操作、协议解析），一切与硬件相关的操作（GPIO、总线、时延）均通过抽象接口注入。
+
 📐 架构分层
 系统严格划分为三层，层级间单向依赖：
 APP / Business Layer (顶层)
