@@ -97,15 +97,20 @@ driver_status_t template_set_config(template_dev_t *p_dev, template_cfg_t new_cf
 
 static driver_status_t static_read_reg(template_dev_t *p_dev, uint8_t reg, uint8_t *p_data, uint32_t len)
 {
-    /* 调用注入的接口，透传 bus_ctx */
-    int32_t res = p_dev->ops.i2c_ops.read_reg(p_dev->bus_ctx, p_dev->dev_addr, reg, p_data, len);
+    driver_status_t ret = p_dev->ops.i2c_ops.read_reg(p_dev->bus_ctx, p_dev->dev_addr, reg, p_data, len);
     
-    /* 统一错误码映射：假设底层返回0为成功 */
-    return (res == 0) ? DRV_OK : DRV_ERR_IO;
+    if (ret != DRV_OK) {
+        return DRV_ERR_IO;
+    }
+    return DRV_OK;
 }
 
 static driver_status_t static_write_reg(template_dev_t *p_dev, uint8_t reg, const uint8_t *p_data, uint32_t len)
 {
-    int32_t res = p_dev->ops.i2c_ops.write_reg(p_dev->bus_ctx, p_dev->dev_addr, reg, p_data, len);
-    return (res == 0) ? DRV_OK : DRV_ERR_IO;
+    driver_status_t ret = p_dev->ops.i2c_ops.write_reg(p_dev->bus_ctx, p_dev->dev_addr, reg, p_data, len);
+    
+    if (ret != DRV_OK) {
+        return DRV_ERR_IO;
+    }
+    return DRV_OK;
 }

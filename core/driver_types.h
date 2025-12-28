@@ -24,9 +24,6 @@ typedef enum {
 } driver_status_t;
 
 /* --- 2. 通用宏定义 (Common Macros) --- */
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
 
 /* 位操作宏 */
 #define DRV_BIT(n)              (1UL << (n))
@@ -37,8 +34,16 @@ typedef enum {
 /* 数组元素计数 */
 #define DRV_ARRAY_SIZE(a)       (sizeof(a) / sizeof((a)[0]))
 
-/* 字节序处理 (大小端兼容) - 将多字节转为大端传输通常需要的序列 */
+/* 字节序处理 (大小端兼容) */
 #define DRV_U16_HIGH(x)         ((uint8_t)(((x) >> 8) & 0xFF))
 #define DRV_U16_LOW(x)          ((uint8_t)((x) & 0xFF))
+#define DRV_MAKE_U16(h, l)      ((uint16_t)(((uint16_t)(h) << 8) | (l)))
+
+#define DRV_U32_BYTE0(x)        ((uint8_t)(((x) >> 24) & 0xFF))
+#define DRV_U32_BYTE1(x)        ((uint8_t)(((x) >> 16) & 0xFF))
+#define DRV_U32_BYTE2(x)        ((uint8_t)(((x) >> 8) & 0xFF))
+#define DRV_U32_BYTE3(x)        ((uint8_t)((x) & 0xFF))
+#define DRV_MAKE_U32(b0, b1, b2, b3) \
+    ((uint32_t)(((uint32_t)(b0) << 24) | ((uint32_t)(b1) << 16) | ((uint32_t)(b2) << 8) | (b3)))
 
 #endif /* _DRIVER_TYPES_H_ */
