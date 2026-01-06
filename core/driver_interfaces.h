@@ -118,7 +118,43 @@ typedef struct {
     uint32_t (*available)(void *ctx);
 } driver_uart_ops_t;
 
-/* --- 6. 中断接口 (Interrupt Operations) --- */
+/* --- 6. PWM 接口 (PWM Operations) --- */
+typedef struct {
+    /**
+     * @brief 设置 PWM 占空比
+     * @param ctx PWM句柄 (如 TIM_HandleTypeDef*)
+     * @param channel PWM通道 (1, 2, 3, 4...)
+     * @param duty 占空比 (0.0 ~ 1.0)
+     * @return driver_status_t
+     */
+    driver_status_t (*set_duty)(void *ctx, uint8_t channel, float duty);
+
+    /**
+     * @brief 设置 PWM 频率 (可选)
+     * @param ctx PWM句柄
+     * @param frequency_hz 频率 (Hz)
+     * @return driver_status_t
+     */
+    driver_status_t (*set_freq)(void *ctx, uint32_t frequency_hz);
+
+    /**
+     * @brief 启动 PWM 输出
+     * @param ctx PWM句柄
+     * @param channel PWM通道
+     * @return driver_status_t
+     */
+    driver_status_t (*start)(void *ctx, uint8_t channel);
+
+    /**
+     * @brief 停止 PWM 输出
+     * @param ctx PWM句柄
+     * @param channel PWM通道
+     * @return driver_status_t
+     */
+    driver_status_t (*stop)(void *ctx, uint8_t channel);
+} driver_pwm_ops_t;
+
+/* --- 7. 中断接口 (Interrupt Operations) --- */
 typedef void (*driver_irq_callback_t)(void *user_data);
 
 typedef struct {
