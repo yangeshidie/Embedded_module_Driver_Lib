@@ -77,8 +77,8 @@ typedef struct {
  */
 typedef struct {
     /* 依赖接口 (必须注入) */
-    driver_gpio_ops_t gpio_ops;   /**< GPIO操作接口 */
-    driver_pwm_ops_t  pwm_ops;    /**< PWM操作接口 */
+    driver_gpio_ops_t   gpio_ops;   /**< GPIO操作接口 */
+    driver_timer_ops_t  timer_ops;  /**< 定时器/PWM操作接口 */
 
     /* 运行状态 */
     l298n_pin_config_t pin_cfg;   /**< 引脚配置 */
@@ -93,13 +93,13 @@ typedef struct {
  * @brief 初始化 L298N
  * @param p_dev 设备句柄指针
  * @param p_gpio_ops GPIO接口指针
- * @param p_pwm_ops PWM接口指针
+ * @param p_timer_ops 定时器/PWM接口指针
  * @param p_pin_cfg 引脚配置
  * @return DRV_OK 成功, 其他失败
  */
 driver_status_t l298n_init(l298n_dev_t *p_dev,
                            const driver_gpio_ops_t *p_gpio_ops,
-                           const driver_pwm_ops_t *p_pwm_ops,
+                           const driver_timer_ops_t *p_timer_ops,
                            const l298n_pin_config_t *p_pin_cfg);
 
 /**

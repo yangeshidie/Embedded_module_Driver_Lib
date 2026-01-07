@@ -73,7 +73,7 @@ static driver_status_t static_set_motor1_speed(l298n_dev_t *p_dev, float duty) {
         duty = L298N_MAX_DUTY;
     }
 
-    return p_dev->pwm_ops.set_duty(p_dev->pin_cfg.pwm_ctx, p_dev->pin_cfg.ena_pwm_channel, duty);
+    return p_dev->timer_ops.pwm_set_duty(p_dev->pin_cfg.pwm_ctx, p_dev->pin_cfg.ena_pwm_channel, duty);
 }
 
 /**
@@ -86,27 +86,27 @@ static driver_status_t static_set_motor2_speed(l298n_dev_t *p_dev, float duty) {
         duty = L298N_MAX_DUTY;
     }
 
-    return p_dev->pwm_ops.set_duty(p_dev->pin_cfg.pwm_ctx, p_dev->pin_cfg.enb_pwm_channel, duty);
+    return p_dev->timer_ops.pwm_set_duty(p_dev->pin_cfg.pwm_ctx, p_dev->pin_cfg.enb_pwm_channel, duty);
 }
 
 /* --- 2. 公共API实现 (Public API Implementation) --- */
 
 driver_status_t l298n_init(l298n_dev_t *p_dev,
                            const driver_gpio_ops_t *p_gpio_ops,
-                           const driver_pwm_ops_t *p_pwm_ops,
+                           const driver_timer_ops_t *p_timer_ops,
                            const l298n_pin_config_t *p_pin_cfg) {
-    if (p_dev == NULL || p_gpio_ops == NULL || p_pwm_ops == NULL || p_pin_cfg == NULL) {
+    if (p_dev == NULL || p_gpio_ops == NULL || p_timer_ops == NULL || p_pin_cfg == NULL) {
         return DRV_ERR_INVALID_VAL;
     }
 
-    if (p_gpio_ops->write_pin == NULL || p_pwm_ops->set_duty == NULL) {
+    if (p_gpio_ops->write_pin == NULL || p_timer_ops->pwm_set_duty == NULL) {
         return DRV_ERR_INVALID_VAL;
     }
 
     memset(p_dev, 0, sizeof(l298n_dev_t));
 
     p_dev->gpio_ops = *p_gpio_ops;
-    p_dev->pwm_ops = *p_pwm_ops;
+    p_dev->timer_ops = *p_timer_ops;
     p_dev->pin_cfg = *p_pin_cfg;
 
     p_dev->motor1.direction = L298N_DIR_STOP;

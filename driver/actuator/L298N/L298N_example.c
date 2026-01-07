@@ -88,6 +88,65 @@ static driver_status_t example_pwm_set_freq(void *ctx, uint32_t frequency_hz) {
     return DRV_OK;
 }
 
+/**
+ * @brief 定时器周期启动适配 (可选，L298N不需要)
+ */
+static driver_status_t example_timer_start_periodic(void *ctx, uint32_t period_us, timer_callback_t cb, void *user_data) {
+    (void)ctx;
+    (void)period_us;
+    (void)cb;
+    (void)user_data;
+    return DRV_OK;
+}
+
+/**
+ * @brief 定时器单次启动适配 (可选，L298N不需要)
+ */
+static driver_status_t example_timer_start_one_shot(void *ctx, uint32_t timeout_us, timer_callback_t cb, void *user_data) {
+    (void)ctx;
+    (void)timeout_us;
+    (void)cb;
+    (void)user_data;
+    return DRV_OK;
+}
+
+/**
+ * @brief 定时器停止适配 (可选，L298N不需要)
+ */
+static driver_status_t example_timer_stop(void *ctx) {
+    (void)ctx;
+    return DRV_OK;
+}
+
+/**
+ * @brief 获取定时器计数值适配 (可选，L298N不需要)
+ */
+static uint32_t example_timer_get_counter(void *ctx) {
+    (void)ctx;
+    return 0;
+}
+
+/**
+ * @brief 设置输入捕获回调适配 (可选，L298N不需要)
+ */
+static driver_status_t example_timer_set_capture_callback(void *ctx, uint8_t channel, timer_callback_t cb, void *user_data) {
+    (void)ctx;
+    (void)channel;
+    (void)cb;
+    (void)user_data;
+    return DRV_OK;
+}
+
+/**
+ * @brief 获取捕获值适配 (可选，L298N不需要)
+ */
+static driver_status_t example_timer_get_capture_value(void *ctx, uint8_t channel, uint32_t *p_value) {
+    (void)ctx;
+    (void)channel;
+    (void)p_value;
+    return DRV_OK;
+}
+
 /* --- 4. 应用程序 (Application) --- */
 
 l298n_dev_t g_l298n_dev;
@@ -100,11 +159,17 @@ void l298n_example_init(void) {
         .read_pin = NULL
     };
 
-    driver_pwm_ops_t pwm_ops = {
-        .set_duty = example_pwm_set_duty,
-        .set_freq = example_pwm_set_freq,
-        .start = example_pwm_start,
-        .stop = example_pwm_stop
+    driver_timer_ops_t timer_ops = {
+        .start_periodic = example_timer_start_periodic,
+        .start_one_shot = example_timer_start_one_shot,
+        .stop = example_timer_stop,
+        .get_counter = example_timer_get_counter,
+        .set_capture_callback = example_timer_set_capture_callback,
+        .get_capture_value = example_timer_get_capture_value,
+        .pwm_set_duty = example_pwm_set_duty,
+        .pwm_set_freq = example_pwm_set_freq,
+        .pwm_start = example_pwm_start,
+        .pwm_stop = example_pwm_stop
     };
 
     l298n_pin_config_t pin_cfg = {
@@ -117,7 +182,7 @@ void l298n_example_init(void) {
         .enb_pwm_channel = PWM_CHANNEL_ENB
     };
 
-    status = l298n_init(&g_l298n_dev, &gpio_ops, &pwm_ops, &pin_cfg);
+    status = l298n_init(&g_l298n_dev, &gpio_ops, &timer_ops, &pin_cfg);
     if (status != DRV_OK) {
         while (1);
     }

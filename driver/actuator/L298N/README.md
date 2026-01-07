@@ -13,7 +13,10 @@ L298N 是一款常用的双路全桥电机驱动芯片，可驱动两个直流�
 ## 3. 依赖项
 本驱动依赖以下接口，需在应用层实现并注入：
 1. **GPIO 写入接口**: `driver_gpio_ops_t.write_pin`
-2. **PWM 操作接口**: `driver_pwm_ops_t`
+2. **定时器/PWM 操作接口**: 
+   - `driver_timer_ops_t.pwm_set_duty` (设置PWM占空比)
+   - `driver_timer_ops_t.pwm_start` (启动PWM输出)
+   - `driver_timer_ops_t.pwm_stop` (停止PWM输出)
 
 ## 4. 硬件连接
 L298N 模块与 MCU 的典型连接：
@@ -78,6 +81,35 @@ static driver_status_t my_pwm_stop(void *ctx, uint8_t channel) {
     HAL_TIM_PWM_Stop(htim, channel);
     return DRV_OK;
 }
+
+/* 定时器其他功能（可选，L298N不需要）*/
+static driver_status_t my_timer_start_periodic(void *ctx, uint32_t period_us, timer_callback_t cb, void *user_data) {
+    return DRV_OK;
+}
+
+static driver_status_t my_timer_start_one_shot(void *ctx, uint32_t timeout_us, timer_callback_t cb, void *user_data) {
+    return DRV_OK;
+}
+
+static driver_status_t my_timer_stop(void *ctx) {
+    return DRV_OK;
+}
+
+static uint32_t my_timer_get_counter(void *ctx) {
+    return 0;
+}
+
+static driver_status_t my_timer_set_capture_callback(void *ctx, uint8_t channel, timer_callback_t cb, void *user_data) {
+    return DRV_OK;
+}
+
+static driver_status_t my_timer_get_capture_value(void *ctx, uint8_t channel, uint32_t *p_value) {
+    return DRV_OK;
+}
+
+static driver_status_t my_pwm_set_freq(void *ctx, uint32_t frequency_hz) {
+    return DRV_OK;
+}
 ```
 
 ### 5.3 初始化与使用
@@ -91,11 +123,17 @@ void app_init() {
         .read_pin = NULL
     };
 
-    driver_pwm_ops_t pwm_ops = {
-        .set_duty = my_pwm_set_duty,
-        .set_freq = NULL,
-        .start = my_pwm_start,
-        .stop = my_pwm_stop
+    driver_timer_ops_t timer_ops = {
+        .start_periodic = my_timer_start_periodic,
+        .start_one_shot = my_timer_start_one_shot,
+        .stop = my_timer_stop,
+        .get_counter = my_timer_get_counter,
+        .set_capture_callback = my_timer_set_capture_callback,
+        .get_capture_value = my_timer_get_capture_value,
+        .pwm_set_duty = my_pwm_set_duty,
+        .pwm_set_freq = my_pwm_set_freq,
+        .pwm_start = my_pwm_start,
+        .pwm_stop = my_pwm_stop
     };
 
     l298n_pin_config_t pin_cfg = {
@@ -108,7 +146,7 @@ void app_init() {
         .enb_pwm_channel = TIM_CHANNEL_2
     };
 
-    l298n_init(&l298n_dev, &gpio_ops, &pwm_ops, &pin_cfg);
+    l298n_init(&l298n_dev, &gpio_ops, &timer_ops, &pin_cfg);
 }
 
 void app_loop() {
